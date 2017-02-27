@@ -210,11 +210,15 @@
           android:visibility="invisible"/>
 
   <Button android:id="@+id/torch_button"
-          android:layout_width="wrap_content"
-          android:layout_height="wrap_content"
-          android:layout_gravity="top|right"
-          android:drawableLeft="@drawable/toggle_torch"
-          android:drawableStart="@drawable/toggle_torch"
-          android:visibility="invisible"/>
+    android:layout_width="50dp"
+    android:layout_height="50dp"
+    android:background="@drawable/roundedbutton"
+    android:drawableTop="@drawable/flashlight_off"
+    android:layout_marginBottom="40dp"
+    android:layout_marginEnd="20dp"
+    android:layout_marginRight="20dp"
+    android:layout_gravity="bottom|right"
+    android:paddingTop="7dp"
+    android:visibility="invisible"/>
 
 </merge>
