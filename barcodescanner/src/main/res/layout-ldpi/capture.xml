@@ -21,10 +21,10 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_gravity="top|center_horizontal"
-      android:background="@color/#FFFFFF"
+      android:background="#FFFFFF"
       android:text="@string/msg_default_status"
       android:padding="20dp"
-      android:textColor="@color/status_text"/>
+      android:textColor="#000000"/>
 
   <SurfaceView android:id="@+id/preview_view"
                android:layout_width="fill_parent"
