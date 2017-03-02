@@ -21,7 +21,10 @@ import android.content.Context;
 import android.content.pm.FeatureInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Button;
 import com.google.zxing.BarcodeFormat;
@@ -841,10 +844,13 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         for (final FeatureInfo feature : this.getPackageManager().getSystemAvailableFeatures()) {
           if (PackageManager.FEATURE_CAMERA_FLASH.equalsIgnoreCase(feature.name)) {
             torchButton.setVisibility(View.VISIBLE);
+            torchButton.setCompoundDrawablesWithIntrinsicBounds(null, this.getTorchDrawable(false), null, null);
             torchButton.setOnClickListener(new Button.OnClickListener() {
               @Override
               public void onClick(View v) {
                 cameraManager.setTorch(!cameraManager.isTorchOn());
+                torchButton.setCompoundDrawablesWithIntrinsicBounds(null,
+                        CaptureActivity.this.getTorchDrawable(cameraManager.isTorchOn()), null, null);
               }
             });
             break;
@@ -852,6 +858,14 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         }
       }
     }
+  }
+
+  private Drawable getTorchDrawable(boolean isTorchOn) {
+    //FIXME EWEEM-615 insert icon for active flashlight to achieve toggle functionality
+    Drawable d = ContextCompat.getDrawable(getApplicationContext(), isTorchOn ? R.drawable.icon_flash : R.drawable.icon_flash);
+    Bitmap b = ((BitmapDrawable)d).getBitmap();
+    Bitmap bitmapResized = Bitmap.createScaledBitmap(b, 60, 99, false);
+    return new BitmapDrawable(getResources(), bitmapResized);
   }
 
   public void drawViewfinder() {

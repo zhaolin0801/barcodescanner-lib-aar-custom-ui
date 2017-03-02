@@ -214,12 +214,11 @@
       android:layout_width="50dp"
       android:layout_height="50dp"
       android:background="@drawable/roundedbutton"
-      android:drawableTop="@drawable/flashlight_off"
       android:layout_marginBottom="20dp"
       android:layout_marginEnd="20dp"
       android:layout_marginRight="20dp"
       android:layout_gravity="bottom|right"
-      android:paddingTop="7dp"
+      android:paddingTop="12dp"
       android:visibility="invisible"/>
 
 </merge>
