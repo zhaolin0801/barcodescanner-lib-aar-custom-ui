@@ -43,6 +43,10 @@ public final class CameraManager {
 
   private static final String TAG = CameraManager.class.getSimpleName();
 
+  public static int FRAME_WIDTH = -1;
+  public static int FRAME_HEIGHT = -1;
+  public static int FRAME_MARGINTOP = -1;
+
   private static final int MIN_FRAME_WIDTH = 240;
   private static final int MIN_FRAME_HEIGHT = 240;
   private static final int MAX_FRAME_WIDTH = 1200; // = 5/8 * 1920
@@ -241,7 +245,15 @@ public final class CameraManager {
       int height = findDesiredDimensionInRange(screenResolution.y, MIN_FRAME_HEIGHT, MAX_FRAME_HEIGHT);
 
       int leftOffset = (screenResolution.x - width) / 2;
-      int topOffset = (screenResolution.y - height) / 2;
+      //动态配置扫描框距离顶部距离
+      int topOffset;
+      if (FRAME_MARGINTOP != -1) {
+        topOffset = FRAME_MARGINTOP;
+      } else {
+//        topOffset = (screenResolution.y - FRAME_HEIGHT) / 2;
+        topOffset = (screenResolution.y - height) / 2;
+      }
+
       framingRect = new Rect(leftOffset, topOffset, leftOffset + width, topOffset + height);
       Log.d(TAG, "Calculated framing rect: " + framingRect);
     }

@@ -18,20 +18,21 @@ package com.google.zxing.client.android;
 
 import com.google.zxing.ResultPoint;
 import com.google.zxing.client.android.camera.CameraManager;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.view.View;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import barcodescanner.xservices.nl.barcodescanner.R;
 
 /**
@@ -73,10 +74,145 @@ public final class ViewfinderView extends View {
     scannerAlpha = 0;
     possibleResultPoints = new ArrayList<>(5);
     lastPossibleResultPoints = null;
+    scanLight = BitmapFactory.decodeResource(resources,
+            R.drawable.scan_light);
+
+    initInnerRect(context, attrs);
   }
 
   public void setCameraManager(CameraManager cameraManager) {
     this.cameraManager = cameraManager;
+  }
+
+
+  // 扫描线移动的y
+  private int scanLineTop;
+  // 扫描线移动速度
+  private int SCAN_VELOCITY;
+  // 扫描线
+  private Bitmap scanLight;
+  // 是否展示小圆点
+  private boolean isCircle;
+
+  /**
+   * 绘制移动扫描线
+   *
+   * @param canvas
+   * @param frame
+   */
+  private void drawScanLight(Canvas canvas, Rect frame) {
+
+    if (scanLineTop == 0) {
+      scanLineTop = frame.top;
+    }
+
+    if (scanLineTop >= frame.bottom - 30) {
+      scanLineTop = frame.top;
+    } else {
+      scanLineTop += SCAN_VELOCITY;
+    }
+    Rect scanRect = new Rect(frame.left, scanLineTop, frame.right,
+            scanLineTop + 30);
+    canvas.drawBitmap(scanLight, null, scanRect, paint);
+  }
+
+  // 扫描框边的颜色
+  private int innerbordercolor;
+  // 扫描框边的宽度
+  private int innerborderwidth;
+  // 扫描框边角颜色
+  private int innercornercolor;
+  // 扫描框边角长度
+  private int innercornerlength;
+  // 扫描框边角宽度
+  private int innercornerwidth;
+
+  /**
+   * 绘制取景框边框
+   *
+   * @param canvas
+   * @param frame
+   */
+  private void drawFrameBounds(Canvas canvas, Rect frame) {
+
+    paint.setStyle(Paint.Style.STROKE);
+    paint.setStrokeWidth(innerborderwidth);
+    paint.setColor(innerbordercolor);
+    // 边框
+    canvas.drawRect(frame.left+innerborderwidth/2, frame.top+innerborderwidth/2, frame.right-innerborderwidth/2, frame.bottom-innerborderwidth/2, paint);
+
+    paint.setStyle(Paint.Style.FILL);
+    paint.setColor(innercornercolor);
+    int corWidth = innercornerwidth;
+    int corLength = innercornerlength;
+
+    // 左上角
+    canvas.drawRect(frame.left, frame.top, frame.left + corWidth, frame.top
+            + corLength, paint);
+    canvas.drawRect(frame.left, frame.top, frame.left
+            + corLength, frame.top + corWidth, paint);
+    // 右上角
+    canvas.drawRect(frame.right - corWidth, frame.top, frame.right,
+            frame.top + corLength, paint);
+    canvas.drawRect(frame.right - corLength, frame.top,
+            frame.right, frame.top + corWidth, paint);
+    // 左下角
+    canvas.drawRect(frame.left, frame.bottom - corLength,
+            frame.left + corWidth, frame.bottom, paint);
+    canvas.drawRect(frame.left, frame.bottom - corWidth, frame.left
+            + corLength, frame.bottom, paint);
+    // 右下角
+    canvas.drawRect(frame.right - corWidth, frame.bottom - corLength,
+            frame.right, frame.bottom, paint);
+    canvas.drawRect(frame.right - corLength, frame.bottom - corWidth,
+            frame.right, frame.bottom, paint);
+  }
+
+  /**
+   * 初始化内部框的大小
+   * @param context
+   * @param attrs
+   */
+  private void initInnerRect(Context context, AttributeSet attrs) {
+    TypedArray ta = context.obtainStyledAttributes(attrs, R.styleable.innerrect);
+
+    // 扫描框距离顶部
+    float innerMarginTop = ta.getDimension(R.styleable.innerrect_inner_margintop, -1);
+    if (innerMarginTop != -1) {
+      CameraManager.FRAME_MARGINTOP = (int) innerMarginTop;
+    }
+
+    // 扫描框的宽度
+    CameraManager.FRAME_WIDTH = (int) ta.getDimension(R.styleable.innerrect_inner_width, DisplayUtil.screenWidthPx / 2);
+
+    // 扫描框的高度
+    CameraManager.FRAME_HEIGHT = (int) ta.getDimension(R.styleable.innerrect_inner_height, DisplayUtil.screenWidthPx / 2);
+
+    // 扫描框边的颜色
+    innerbordercolor = ta.getColor(R.styleable.innerrect_inner_border_color, Color.parseColor("#FFFFFF"));
+    // 扫描框边宽度
+    innerborderwidth = (int) ta.getDimension(R.styleable.innerrect_inner_border_width, 4.5f);
+
+    // 扫描框边角颜色
+    innercornercolor = ta.getColor(R.styleable.innerrect_inner_corner_color, Color.parseColor("#5BAFFF"));
+    // 扫描框边角长度
+    innercornerlength = (int) ta.getDimension(R.styleable.innerrect_inner_corner_length, 60);
+    // 扫描框边角宽度
+    innercornerwidth = (int) ta.getDimension(R.styleable.innerrect_inner_corner_width, 9);
+
+    // 扫描bitmap
+    Drawable drawable = ta.getDrawable(R.styleable.innerrect_inner_scan_bitmap);
+    if (drawable != null) {
+    }
+
+    // 扫描控件
+    scanLight = BitmapFactory.decodeResource(getResources(), ta.getResourceId(R.styleable.innerrect_inner_scan_bitmap, R.drawable.scan_light));
+    // 扫描速度
+    SCAN_VELOCITY = ta.getInt(R.styleable.innerrect_inner_scan_speed, 5);
+
+    isCircle = ta.getBoolean(R.styleable.innerrect_inner_scan_iscircle, true);
+
+    ta.recycle();
   }
 
   @SuppressLint("DrawAllocation")
@@ -106,12 +242,15 @@ public final class ViewfinderView extends View {
       canvas.drawBitmap(resultBitmap, null, frame, paint);
     } else {
 
+      drawFrameBounds(canvas, frame);
+      drawScanLight(canvas, frame);
+
       // Draw a red "laser scanner" line through the middle to show decoding is active
-      paint.setColor(laserColor);
-      paint.setAlpha(SCANNER_ALPHA[scannerAlpha]);
-      scannerAlpha = (scannerAlpha + 1) % SCANNER_ALPHA.length;
-      int middle = frame.height() / 2 + frame.top;
-      canvas.drawRect(frame.left + 2, middle - 1, frame.right - 1, middle + 2, paint);
+//      paint.setColor(laserColor);
+//      paint.setAlpha(SCANNER_ALPHA[scannerAlpha]);
+//      scannerAlpha = (scannerAlpha + 1) % SCANNER_ALPHA.length;
+//      int middle = frame.height() / 2 + frame.top;
+//      canvas.drawRect(frame.left + 2, middle - 1, frame.right - 1, middle + 2, paint);
       
       float scaleX = frame.width() / (float) previewFrame.width();
       float scaleY = frame.height() / (float) previewFrame.height();

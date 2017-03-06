@@ -150,7 +150,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     super.onCreate(icicle);
 
     Window window = getWindow();
-    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+//    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    // Show status bar
+    getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     setContentView(R.layout.capture);
 
     hasSurface = false;
@@ -194,6 +196,12 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     viewfinderView = (ViewfinderView) findViewById(R.id.viewfinder_view);
     viewfinderView.setCameraManager(cameraManager);
 
+    findViewById(R.id.btn_cancel).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        finish();
+      }
+    });
     resultView = findViewById(R.id.result_view);
     statusView = (TextView) findViewById(R.id.status_view);
     flipButton = (Button) findViewById(R.id.flip_button);
