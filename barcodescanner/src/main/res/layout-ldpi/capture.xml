@@ -34,7 +34,7 @@
         app:inner_border_width="1.5dp"
         app:inner_corner_length="20dp"
         app:inner_corner_width="3dp"
-        app:inner_margintop="90dp" />
+        app:inner_margintop="120dp" />
 
     <TextView
         android:id="@+id/status_view"
